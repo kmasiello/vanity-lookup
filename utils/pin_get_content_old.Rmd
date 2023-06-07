@@ -1,0 +1,37 @@
+---
+title: "Pin results of `get_content_old`"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r packages, include=FALSE}
+library(connectapi)
+library(pins)
+```
+
+```{r}
+conn <- connectapi::connect(
+  server = Sys.getenv("CONNECT_SERVER"),
+  api_key = Sys.getenv("CONNECT_API_KEY")
+  )
+
+# have to use the old `get_content_old` function to return vanity urls
+start_time <- Sys.time()
+content_w_vanities <- connectapi::get_content_old(conn, limit = Inf)
+end_time <- Sys.time()
+duration <- end_time - start_time
+
+board <- board_rsconnect()
+
+
+pin_write(board, content_w_vanities)
+
+#prune versions to keep server from exploding
+board %>% pin_versions_prune("katie.masiello/content_w_vanities", n=2)
+
+```
+
+Info: `get_content_old` took `r paste(round(duration[[1]], 2),  units(duration))` to run.
+
